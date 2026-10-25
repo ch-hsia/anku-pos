@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>安庫 POS</title>
+  <meta name="description" content="安庫的離線現場收銀：匯入帶貨檔、逐筆結帳、匯出交易檔。">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="安庫 POS">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <header id="topbar" hidden>
+    <div class="topbar-row">
+      <div class="event-title">
+        <h1 id="event-name"></h1>
+        <span id="day-badge" class="badge"></span>
+      </div>
+      <div class="today-stats">
+        <span>今日營收 <strong id="today-revenue"></strong></span>
+        <span>交易 <strong id="today-count"></strong> 筆</span>
+      </div>
+      <div class="topbar-actions">
+        <label class="switch-label">
+          <span>快速模式</span>
+          <input type="checkbox" id="quick-toggle" role="switch">
+        </label>
+        <button type="button" class="btn btn-tinted" data-action="export">匯出</button>
+        <button type="button" class="btn btn-icon" data-action="settings" aria-label="設定">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="topbar-row">
+      <div class="segmented" role="tablist" aria-label="畫面">
+        <button type="button" role="tab" data-view="register">收銀</button>
+        <button type="button" role="tab" data-view="records">交易紀錄</button>
+        <button type="button" role="tab" data-view="summary">每日摘要</button>
+      </div>
+      <button type="button" id="export-status" class="export-status" data-action="export"></button>
+    </div>
+  </header>
+
+  <main>
+    <section id="view-empty" class="view empty-state" hidden>
+      <div class="empty-card">
+        <img src="icons/icon-192.png" alt="" width="72" height="72">
+        <h1>安庫 POS</h1>
+        <p>在 Mac 的活動詳情匯出帶貨檔，AirDrop 到 iPad 存到「檔案」，再在這裡匯入。</p>
+        <button type="button" class="btn btn-filled btn-large" data-action="import">匯入帶貨檔</button>
+        <p id="install-hint" class="hint" hidden>請在 Safari 按「分享 › 加入主畫面」，之後從主畫面開啟，資料才不會被 Safari 清除。</p>
+      </div>
+    </section>
+
+    <section id="view-register" class="view" hidden>
+      <div id="catalog">
+        <div class="catalog-tools">
+          <input type="search" id="search" placeholder="搜尋品項、款式或類別" autocomplete="off" enterkeyhint="search">
+          <button type="button" class="btn btn-gray" data-action="custom">＋ 自訂品項</button>
+        </div>
+        <p id="quick-banner" class="quick-banner" hidden>快速模式：點一下商品就直接結帳一件，不經過購物籃。</p>
+        <div id="grid"></div>
+      </div>
+
+      <aside id="basket" class="collapsed">
+        <button type="button" class="basket-handle" data-action="toggle-drawer">
+          <span class="grabber" aria-hidden="true"></span>
+          <span id="handle-text"></span>
+        </button>
+        <div class="basket-body">
+          <div class="basket-header">
+            <h2>購物籃</h2>
+            <button type="button" class="btn btn-plain" data-action="clear-basket">清空</button>
+          </div>
+          <ul id="basket-lines"></ul>
+          <div class="discount-row">
+            <span>整筆折扣</span>
+            <div class="segmented small" id="discount-type">
+              <button type="button" data-discount-type="amount">金額</button>
+              <button type="button" data-discount-type="percent">%</button>
+            </div>
+            <input type="text" id="discount-input" inputmode="decimal" placeholder="0" autocomplete="off">
+          </div>
+          <dl class="totals">
+            <div><dt>小計</dt><dd id="subtotal"></dd></div>
+            <div><dt>折扣</dt><dd id="discount-amount"></dd></div>
+            <div class="grand"><dt>實收</dt><dd id="total"></dd></div>
+          </dl>
+          <button type="button" id="checkout" class="btn btn-filled btn-large" data-action="checkout">結帳</button>
+          <button type="button" class="btn btn-plain undo-last" data-action="undo-last">復原上一筆</button>
+        </div>
+      </aside>
+    </section>
+
+    <section id="view-records" class="view scroll-view" hidden>
+      <div class="view-tools">
+        <div class="day-chips" id="records-days"></div>
+        <button type="button" class="btn btn-gray" data-action="undo-last">復原上一筆</button>
+      </div>
+      <ul id="records-list" class="list"></ul>
+    </section>
+
+    <section id="view-summary" class="view scroll-view" hidden>
+      <div class="view-tools">
+        <div class="day-chips" id="summary-days"></div>
+      </div>
+      <div id="summary-content"></div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite" hidden>
+    <span id="toast-text"></span>
+    <button type="button" id="toast-action" class="btn btn-plain"></button>
+  </div>
+
+  <dialog id="dialog"><form method="dialog" id="dialog-form"></form></dialog>
+  <input type="file" id="file-input" accept=".json,application/json" hidden>
+</body>
+</html>
