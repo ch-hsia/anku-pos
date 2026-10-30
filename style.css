@@ -258,6 +258,7 @@ main { flex: 1; min-height: 0; position: relative; }
   position: relative;
 }
 .card:active { transform: scale(0.97); }
+.card .photo-wrap { position: relative; display: block; }
 .card .photo {
   aspect-ratio: 1;
   width: 100%;
@@ -267,15 +268,28 @@ main { flex: 1; min-height: 0; position: relative; }
   place-items: center;
   color: var(--text-2);
   font-size: 28px;
+  font-weight: 700;
 }
 .card .info { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
 .card .variant { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .card .product { font-size: 13px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.card .meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0 8px; margin-top: 2px; font-variant-numeric: tabular-nums; }
-.card .price { font-weight: 600; }
-.card .sold { font-size: 13px; color: var(--text-2); }
+.card .price { font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
+/* 已售／帶去：照片右下角的實心膠囊 */
+.card .sold {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #636366;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 18px;
+}
 .card.sold-out { opacity: 0.45; }
-.card.sold-out .sold { color: var(--orange); font-weight: 600; }
+.card.sold-out .sold { background: var(--orange); }
 .card .in-basket {
   position: absolute;
   top: 8px;

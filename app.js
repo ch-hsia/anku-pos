@@ -173,13 +173,16 @@ function renderGrid() {
       ${state.category === null ? `<h2>${esc(group.category)}</h2>` : ''}
       <div class="cards">${group.items.map((item) => `
         <button type="button" class="card" data-variant="${esc(item.variantKey)}">
-          ${item.photo
-            ? `<img class="photo" src="${esc(item.photo)}" alt="" loading="lazy" decoding="async">`
-            : `<span class="photo" aria-hidden="true">${esc(item.variantName.slice(0, 1) || item.productName.slice(0, 1))}</span>`}
+          <span class="photo-wrap">
+            ${item.photo
+              ? `<img class="photo" src="${esc(item.photo)}" alt="" loading="lazy" decoding="async">`
+              : `<span class="photo" aria-hidden="true">${esc([...(item.variantName || item.productName)].slice(0, 2).join(''))}</span>`}
+            <span class="sold" aria-hidden="true"></span>
+          </span>
           <span class="info">
             <span class="variant">${esc(item.variantName || item.productName)}</span>
             <span class="product">${esc(item.variantName ? item.productName : '')}</span>
-            <span class="meta"><span class="price">${money(item.priceMinor)}</span><span class="sold"></span></span>
+            <span class="price">${money(item.priceMinor)}</span>
           </span>
         </button>`).join('')}
       </div>
@@ -199,7 +202,7 @@ function updateGridState() {
     const n = sold.get(item.variantKey) ?? 0;
     const soldOut = n >= item.broughtQty;
     card.classList.toggle('sold-out', soldOut);
-    card.querySelector('.sold').textContent = `已售 ${n}／${item.broughtQty}`;
+    card.querySelector('.sold').textContent = `${n}/${item.broughtQty}`;
     card.setAttribute('aria-label', `${core.itemDisplayName(item)}，${money(item.priceMinor)}，已售 ${n} 件，帶去 ${item.broughtQty} 件`);
     let tag = card.querySelector('.in-basket');
     const q = inBasket.get(item.variantKey);
