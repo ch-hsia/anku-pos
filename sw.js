@@ -1,6 +1,6 @@
 // 離線快取：安裝時快取所有程式檔，之後一律先用快取（現場沒有網路）。
 // 更新程式時把 CACHE 的版本號加一，新版會在下次開啟時生效。
-const CACHE = 'anku-pos-v5';
+const CACHE = 'anku-pos-v6';
 const FILES = [
   './',
   'index.html',

@@ -258,10 +258,19 @@ main { flex: 1; min-height: 0; position: relative; }
   position: relative;
 }
 .card:active { transform: scale(0.97); }
-.card .photo-wrap { position: relative; display: block; }
-.card .photo {
-  aspect-ratio: 1;
+/* 底色與正方形尺寸放在外層，照片或替代字用絕對定位鋪滿，避免 iPad Safari 只在字的範圍上色 */
+.card .photo-wrap {
+  position: relative;
+  display: block;
   width: 100%;
+  aspect-ratio: 1;
+  background: var(--surface-2);
+}
+.card .photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   background: var(--surface-2);
   display: grid;
