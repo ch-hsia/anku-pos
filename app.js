@@ -79,6 +79,7 @@ const state = {
   discount: { type: 'amount', value: '' },
   view: 'register',
   search: '',
+  category: null,
   selectedDay: null,
   drawerOpen: false,
 };
@@ -147,16 +148,29 @@ function renderTopbar() {
 
 // MARK: - 商品格
 
+/// 類別膠囊：點一下只顯示該類別，「全部」顯示所有；只有一個類別時不顯示。
+function renderCategoryChips() {
+  const groups = core.groupByCategory(state.items);
+  if (!groups.some((g) => g.category === state.category)) state.category = null;
+  const chips = $('category-chips');
+  chips.hidden = groups.length < 2;
+  const chip = (category, label, count) =>
+    `<button type="button" role="tab" data-category="${esc(category ?? '')}" aria-selected="${category === state.category}">${esc(label)} <span class="count">${count}</span></button>`;
+  chips.innerHTML = chip(null, '全部', state.items.length)
+    + groups.map((g) => chip(g.category, g.category, g.items.length)).join('');
+}
+
 function renderGrid() {
   const grid = $('grid');
-  const items = state.items.filter((i) => core.matchesSearch(i, state.search));
+  renderCategoryChips();
+  const items = state.items.filter((i) => (state.category === null || i.category === state.category) && core.matchesSearch(i, state.search));
   if (items.length === 0) {
     grid.innerHTML = `<p class="no-results">${state.items.length ? '找不到符合的商品' : '帶貨檔沒有品項'}</p>`;
     return;
   }
   grid.innerHTML = core.groupByCategory(items).map((group) => `
     <section class="category">
-      <h2>${esc(group.category)}</h2>
+      ${state.category === null ? `<h2>${esc(group.category)}</h2>` : ''}
       <div class="cards">${group.items.map((item) => `
         <button type="button" class="card" data-variant="${esc(item.variantKey)}">
           ${item.photo
@@ -715,6 +729,12 @@ document.addEventListener('click', (event) => {
     if (!item) return;
     if (state.quickMode) quickCheckout(item);
     else addToBasket(item);
+    return;
+  }
+  if (target.dataset.category !== undefined) {
+    state.category = target.dataset.category || null;
+    renderGrid();
+    $('grid').scrollTop = 0;
     return;
   }
   if (target.dataset.view) {
